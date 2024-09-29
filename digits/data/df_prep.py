@@ -49,9 +49,20 @@ def get_symmetry(df: pd.DataFrame, sym_type: str = "vertical") -> pd.Series:
         return get_vertical_sym(df)
     if sym_type == "horizontal":
         return get_horizontal_sym(df)
+    
+
+def get_pixel_count(df: pd.DataFrame) -> pd.Series:
+    aux = df.apply(np.count_nonzero, axis=1)
+    return aux.apply(lambda x: round(x/255, 2)) # Series does not have axis
      
 
 def pre_processing(df: pd.DataFrame, sym_type: str = "vertical") -> pd.DataFrame:
     intensity = get_intensity(df)
     symmetry = get_symmetry(df, sym_type)
     return pd.DataFrame({"intensity": intensity, "symmetry": symmetry})
+
+
+def pre_processing2(df: pd.DataFrame, sym_type: str = "vertical") -> pd.DataFrame:
+    px_count = get_pixel_count(df)
+    symmetry = get_symmetry(df, sym_type)
+    return pd.DataFrame({"pixel count": px_count, "symmetry": symmetry})
