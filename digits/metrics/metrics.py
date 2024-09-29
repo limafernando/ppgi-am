@@ -12,10 +12,10 @@ def compute_acc(Y, Y_pred):
             acc += 1
     return acc/sample_size
 
-def confusion(Y, Y_pred):
+def confusion(Y, Y_pred, min=-1, max=1):
     cm = confusion_matrix(Y, Y_pred)
 
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=[-1, 1], yticklabels=[-1, 1])
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=[min, max], yticklabels=[min, max])
     plt.xlabel('Predicted Labels')
     plt.ylabel('True Labels')
     plt.title('Confusion Matrix')
