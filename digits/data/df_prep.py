@@ -1,6 +1,17 @@
+from typing import Tuple
 import numpy as np
 import pandas as pd
 
+
+def get_specific_split(X: pd.DataFrame, Y: pd.DataFrame, d1: int, d2: int) -> Tuple[np.array, np.array]:
+    df = pd.concat([X, Y], axis=1)
+
+    df1 = df[(df["label"] == d1)]
+    df2 =  df[(df["label"] == d2)]
+
+    df = pd.concat([df1, df2]).reset_index()
+
+    return df[["intensity", "symmetry"]].to_numpy(), df["label"].replace(5, -1).to_numpy()
 
 def get_intensity(df: pd.DataFrame) -> pd.Series:
     aux = df.apply(np.sum, axis=1)
