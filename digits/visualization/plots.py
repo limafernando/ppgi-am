@@ -1,7 +1,4 @@
-from random import random
-
 from matplotlib import pyplot as plt
-import numpy as np
 import pandas as pd
 
 
@@ -20,26 +17,7 @@ MARKERS_MAP = {
 }
 
 
-def show_bin_dataset(X, Y, d1, d2):
-    """
-    Esta função tem o objetivo de exibir na tela uma amostra do dataset passado por parâmetro.
-    
-    Paramêtros:
-    - X (matriz): Matriz 1000x2 correspondendo aos dados amostra. Cada elemento de X é uma lista que corresponde 
-    às coordenadas dos pontos gerados.
-    - y (list): Classificação dos pontos da amostra X.
-    - p1 (list): Coordenadas do ponto p1 gerado para criar a função alvo.
-    - p2 (list): Coordenadas do ponto p2 gerado para criar a função alvo.
-    - m (float): Coeficiente angular da função alvo.
-    - b (float): Coeficidnte linear da função alvo.
-    """
-    
-    # line = np.linspace(-1, 1, 1000) 
-    # plt.plot(line, m*line + b, label="f(x)", c="green")
-
-    # Pontos usados na criacao da reta
-    # plt.scatter(p1[0], p1[1], c='green')
-    # plt.scatter(p2[0], p2[1], c='green')
+def show_bin_dataset(X: pd.DataFrame, Y: pd.DataFrame, d1: int, d2: int):
 
     c1, m1 = COLOR_MAP[d1], MARKERS_MAP[d1]
     c2, m2 = COLOR_MAP[d2], MARKERS_MAP[d2]
@@ -61,6 +39,39 @@ def show_bin_dataset(X, Y, d1, d2):
     scatter2 = plt.Line2D([0], [0], marker=m2, color='w', markerfacecolor=c2, markersize=10, label=f'Class {d2}')
 
     plt.legend(handles=[scatter1, scatter2], loc='upper left')
+
+    plt.xlabel('Intensity')
+    plt.ylabel('Symmetry')
+
+    plt.show()
+
+
+def show_dataset(X: pd.DataFrame, Y: pd.DataFrame):
+
+    c0, m0 = COLOR_MAP[0], MARKERS_MAP[0]
+    c1, m1 = COLOR_MAP[1], MARKERS_MAP[1]
+    c4, m4 = COLOR_MAP[4], MARKERS_MAP[4]
+    c5, m5 = COLOR_MAP[5], MARKERS_MAP[5]
+
+
+    df = pd.concat([X, Y], axis=1)
+
+    for i in range(len(df)):
+        if (df["label"][i] == 0):
+            plt.scatter(df["intensity"][i], df["symmetry"][i], c=c0, marker=m0)
+        if (df["label"][i] == 1):
+            plt.scatter(df["intensity"][i], df["symmetry"][i], c=c1, marker=m1)
+        if (df["label"][i] == 4):
+            plt.scatter(df["intensity"][i], df["symmetry"][i], c=c4, marker=m4)
+        if (df["label"][i] == 5):
+            plt.scatter(df["intensity"][i], df["symmetry"][i], c=c5, marker=m5)
+
+    scatter0 = plt.Line2D([0], [0], marker=m0, color='w', markerfacecolor=c0, markersize=10, label=f'Class {0}')
+    scatter1 = plt.Line2D([0], [0], marker=m1, color='w', markerfacecolor=c1, markersize=10, label=f'Class {1}')
+    scatter4 = plt.Line2D([0], [0], marker=m4, color='w', markerfacecolor=c4, markersize=10, label=f'Class {4}')
+    scatter5 = plt.Line2D([0], [0], marker=m5, color='w', markerfacecolor=c5, markersize=10, label=f'Class {5}')
+
+    plt.legend(handles=[scatter0, scatter1, scatter4, scatter5], loc='upper left')
 
     plt.xlabel('Intensity')
     plt.ylabel('Symmetry')
