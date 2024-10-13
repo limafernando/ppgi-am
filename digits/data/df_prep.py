@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 
 
-def get_specific_split(X: pd.DataFrame, Y: pd.DataFrame, d1: int, d2: int) -> Tuple[np.array, np.array]:
+def get_specific_split(X: pd.DataFrame, Y: pd.DataFrame, d1: int, d2: int, convert: bool = True) -> Tuple[np.array, np.array]:
     df = pd.concat([X, Y], axis=1)
 
     df1 = df[(df["label"] == d1)]
@@ -11,7 +11,30 @@ def get_specific_split(X: pd.DataFrame, Y: pd.DataFrame, d1: int, d2: int) -> Tu
 
     df = pd.concat([df1, df2]).reset_index()
 
-    return df[["intensity", "symmetry"]].to_numpy(), df["label"].replace(d2, -1).to_numpy()
+    if convert:
+        df["label"] = df["label"].replace(d1, 1)
+        df["label"]= df["label"].replace(d2, -1)
+
+    return df[["intensity", "symmetry"]].to_numpy(), df["label"].to_numpy()
+
+def get_onexall_split(X: pd.DataFrame, Y: pd.DataFrame, d1: int, convert: bool = True) -> Tuple[np.array, np.array]:
+    df = pd.concat([X, Y], axis=1)
+
+    df1 = df[(df["label"] == d1)]
+    df2 =  df[(df["label"] != d1)]
+
+    df = pd.concat([df1, df2]).reset_index()
+
+    if convert:
+        df['label'] = np.where(df['label'] == d1, 1, -1)
+
+    # print(df)
+
+    # df = df.loc[df.label != d1, "label"] = -1
+
+    # df[["intensity", "symmetry"]].to_numpy(), df["label"].replace(d1, 1).to_numpy()
+
+    return df[["intensity", "symmetry"]].to_numpy(), df["label"].to_numpy()
 
 def get_intensity(df: pd.DataFrame) -> pd.Series:
     aux = df.apply(np.sum, axis=1)

@@ -21,10 +21,10 @@ def confusion(Y, Y_pred, min=-1, max=1):
     plt.title('Confusion Matrix')
     plt.show()
 
-def eficiency_report(Y, Y_pred):
+def eficiency_report(Y, Y_pred, avarage="binary"):
     return {
         "acc": accuracy_score(Y, Y_pred),
-        "precision": precision_score(Y, Y_pred),
-        "recall": recall_score(Y, Y_pred),
-        "f1": f1_score(Y, Y_pred),
+        "precision": precision_score(Y, Y_pred, average=avarage),
+        "recall": recall_score(Y, Y_pred, average=avarage),
+        "f1": f1_score(Y, Y_pred, average=avarage),
     }
