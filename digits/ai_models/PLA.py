@@ -28,7 +28,7 @@ class BasePLA:
         new_y = []
         for idx in range(len(X)):
             prediction = np.sign(
-                w[0]*X[idx][0] + w[1]*X[idx][1] + w[2] # x1-(m*x0)-b
+                w[1]*X[idx][1] + w[2]*X[idx][2] + w[0] # x1-(m*x0)-b
             )
             # prediction_logit = np.dot(np.asarray(w[0:2]), np.add(X[idx], w[2]))
             # prediction = np.sign(prediction_logit)
@@ -68,9 +68,9 @@ class PLA(BasePLA):
         while (len(listaPCI) > 0) and it < epochs:
             idx = random.randint(0, len(listaPCI)-1)
 
-            self.w[0] = self.w[0] + new_y[idx]*listaPCI[idx][0]
-            self.w[1] = self.w[1] + new_y[idx]*listaPCI[idx][1]
-            self.w[2] = self.w[2] + new_y[idx]
+            self.w[0] = self.w[0] + new_y[idx]
+            self.w[1] = self.w[1] + new_y[idx]*listaPCI[idx][1] # intensidade
+            self.w[2] = self.w[2] + new_y[idx]*listaPCI[idx][2] # simetria
             
             listaPCI, new_y = self.constroiListaPCI(X, Y, self.w)
             
@@ -83,7 +83,7 @@ class PLA(BasePLA):
         Y_pred = []
         for idx in range(len(X)):
             prediction = np.sign(
-                w[0]*X[idx][0] + w[1]*X[idx][1] + w[2] # x2-(m*x1)-b
+                w[1]*X[idx][1] + w[2]*X[idx][2] + w[0] # x2-(m*x1)-b
             )
             Y_pred.append(prediction)
         return Y_pred
@@ -122,9 +122,9 @@ class PocketPLA(BasePLA):
 
             new_w = self.w.copy()
 
-            new_w[0] = self.w[0] + new_y[idx]*listaPCI[idx][0]
-            new_w[1] = self.w[1] + new_y[idx]*listaPCI[idx][1]
-            new_w[2] = self.w[2] + new_y[idx]
+            new_w[0] = self.w[0] + new_y[idx]
+            new_w[1] = self.w[1] + new_y[idx]*listaPCI[idx][1] # intensidade
+            new_w[2] = self.w[2] + new_y[idx]*listaPCI[idx][2] # simetria
 
             new_pred = self.predict(X, new_w)
             new_acc = compute_acc(Y, new_pred)
@@ -145,7 +145,7 @@ class PocketPLA(BasePLA):
         Y_pred = []
         for idx in range(len(X)):
             prediction = np.sign(
-                w[0]*X[idx][0] + w[1]*X[idx][1] + w[2] # x2-(m*x1)-b
+                w[1]*X[idx][1] + w[2]*X[idx][2] + w[0] # x2-(m*x1)-b
             )
             Y_pred.append(prediction)
         return Y_pred

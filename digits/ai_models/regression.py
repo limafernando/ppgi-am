@@ -24,6 +24,7 @@ class LogisticRegression:
       self.n_iters = n_iters
       self.batch_size = bs
       self.w = None
+      self.cost = None
 
     def sigmoid(self, z):
         return 1 / (1 + np.exp(-z))
@@ -73,17 +74,29 @@ class LogisticRegression:
                     np.dot(X_batch, self.w)
                 )
 
-                dz = A - y_batch
+                dz = A - y_batch # y_pred - y_true
 
                 # Computa gradientes
                 dw = (1 / n_samples) * np.dot(X_batch.T, dz)
                 
                 # Atualiza os parâmetros usando o minibatch
                 self.w -= self.lr * dw 
+            # for X_batch, y_batch in minibatches:
+            #     n_samples = X_batch.shape[0]
+            #     numerador_gt = np.dot(y_batch, X_batch)
+            #     y_pred = np.dot(X_batch, self.w)
+            #     denominador_gt = 1+np.exp(
+            #         np.dot(y_batch, y_pred)
+            #     )
+                
+            #     gt = (-1/n_samples) * (numerador_gt/denominador_gt)
+
+            #     self.w -= self.lr*gt
             
-            if it == 0 or (it+1) % 100 == 0:  # Print cost every 100 iterations
-                cost = self.compute_cost(X, y)
+            # if it == 0 or (it+1) % 100 == 0:  # Print cost every 100 iterations
+            #     cost = self.compute_cost(X, y)
                 # print(f"Iteration {it+1}, Cost: {cost}")
+            self.cost = self.compute_cost(X, y)
     
         
     #funcao hipotese inferida pela regressa logistica  
