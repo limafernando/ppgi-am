@@ -11,7 +11,7 @@ def get_specific_split(X: pd.DataFrame, Y: pd.DataFrame, d1: int, d2: int) -> Tu
 
     df = pd.concat([df1, df2]).reset_index()
 
-    return df[["intensity", "symmetry"]].to_numpy(), df["label"].replace(5, -1).to_numpy()
+    return df[["intensity", "symmetry"]].to_numpy(), df["label"].replace(d2, -1).to_numpy()
 
 def get_intensity(df: pd.DataFrame) -> pd.Series:
     aux = df.apply(np.sum, axis=1)
@@ -26,10 +26,35 @@ def reshape_rows(df: pd.DataFrame) -> np.array:
     return np.array(reshaped_arrays)
 
 
+# def get_vertical_sym(df: pd.DataFrame) -> pd.Series:
+#     reshaped_df = reshape_rows(df)
+#     left, right = reshaped_df[:, :, :14], reshaped_df[:, :, 14:]
+#     diff = np.abs(left - right[:,:,::-1])
+#     res = np.zeros(reshaped_df.shape[0])
+#     idx = 0
+#     aux = None
+#     for x in diff:
+#         aux = round(np.sum(x)/255, 2)
+#         res[idx] = aux
+#         idx += 1
+#     return pd.Series(res)
+
 def get_vertical_sym(df: pd.DataFrame) -> pd.Series:
+    res = []
+    for _, row in df.iterrows():
+        reshaped_array = row.values.reshape((28, 28))
+        acc = 0
+        for i in range(28):
+            for j in range(14):
+                acc += abs(reshaped_array[i,j] - reshaped_array[i, 27-j])
+        res.append(acc/255)
+    return pd.Series(res)
+
+
+def get_horizontal_sym(df: pd.DataFrame) -> pd.Series:
     reshaped_df = reshape_rows(df)
-    left, right = reshaped_df[:, :, :14], reshaped_df[:, :, 14:]
-    diff = np.abs(left - right)
+    upper, lower = reshaped_df[:, :14, :], reshaped_df[:, 14:, :]
+    diff = np.abs(upper - lower[:,::-1,:])
     res = np.zeros(reshaped_df.shape[0])
     idx = 0
     aux = None
@@ -38,10 +63,6 @@ def get_vertical_sym(df: pd.DataFrame) -> pd.Series:
         res[idx] = aux
         idx += 1
     return pd.Series(res)
-
-
-def get_horizontal_sym(df: pd.DataFrame) -> pd.Series:
-    pass
 
 
 def get_symmetry(df: pd.DataFrame, sym_type: str = "vertical") -> pd.Series:
@@ -57,9 +78,11 @@ def get_pixel_count(df: pd.DataFrame) -> pd.Series:
      
 
 def pre_processing(df: pd.DataFrame, sym_type: str = "vertical") -> pd.DataFrame:
-    intensity = get_intensity(df)
-    symmetry = get_symmetry(df, sym_type)
-    return pd.DataFrame({"intensity": intensity, "symmetry": symmetry})
+    label = df["label"]
+    df_drop = df.drop("label", axis=1, inplace=False)
+    intensity = get_intensity(df_drop)
+    symmetry = get_symmetry(df_drop, sym_type)
+    return pd.DataFrame({"label": label, "intensity": intensity, "symmetry": symmetry})
 
 
 def pre_processing2(df: pd.DataFrame, sym_type: str = "vertical") -> pd.DataFrame:
