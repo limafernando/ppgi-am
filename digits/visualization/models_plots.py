@@ -25,6 +25,9 @@ def show_model_line(X: pd.DataFrame, Y: pd.DataFrame, d1: int, d2: int, w):
     # Y = Y.replace(1, d1)
     # Y = Y.replace(-1, d2)
 
+    max_x1 = X["intensity"].max()
+    max_x2 = X["symmetry"].max()
+
     df = pd.concat([X, Y], axis=1)
 
     # df1 = df[(df["label"] == d1)]
@@ -44,12 +47,16 @@ def show_model_line(X: pd.DataFrame, Y: pd.DataFrame, d1: int, d2: int, w):
     scatter2 = plt.Line2D([0], [0], marker=m2, color='w', markerfacecolor=c2, markersize=10, label=f'Class {d2}')
 
     x = np.linspace(0, 120, 1000)
-    plt.plot(x, (-w[2] - w[0]*x) / w[1], c='orange') # w = [0, 0, 0] # w1, w2, theta  
+    plt.plot(x, (-w[0] - w[1]*x) / w[2], c='orange') # w = [0, 0, 0] # w1, w2, theta  
 
     plt.legend(handles=[scatter1, scatter2], loc='upper left')
 
-    # plt.xlabel('Intensity')
-    # plt.ylabel('Symmetry')
+    plt.xlabel('Intensity')
+    plt.ylabel('Symmetry')
+
+    plt.xlim(0, max_x1+50)
+    plt.ylim(0, max_x2+50)
+
 
     plt.show()
 

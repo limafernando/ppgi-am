@@ -5,15 +5,15 @@ import pandas as pd
 COLOR_MAP = {
     0: "blue",
     1: "green",
-    5: "gold",
     4: "red",
+    5: "gold",
 }
 
 MARKERS_MAP = {
     0: "o",
     1: "P",
-    5: "p",
     4: "s",
+    5: "p",
 }
 
 
