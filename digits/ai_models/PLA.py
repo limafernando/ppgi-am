@@ -79,14 +79,22 @@ class PLA(BasePLA):
             
         return it, self.w, W       
     
-    def predict(self, X, w):
-        Y_pred = []
-        for idx in range(len(X)):
+    def predict(self, X, w, single=False):
+        
+        if single:
             prediction = np.sign(
-                w[1]*X[idx][1] + w[2]*X[idx][2] + w[0] # x2-(m*x1)-b
+                w[1]*X[1] + w[2]*X[2] + w[0] # x2-(m*x1)-b
             )
-            Y_pred.append(prediction)
-        return Y_pred
+            return prediction
+        else:
+            Y_pred = []
+            for idx in range(len(X)):
+                prediction = np.sign(
+                    w[1]*X[idx][1] + w[2]*X[idx][2] + w[0] # x2-(m*x1)-b
+                )
+                Y_pred.append(prediction)
+        
+            return Y_pred
 
 class PocketPLA(BasePLA):  
 
