@@ -88,11 +88,13 @@ def get_horizontal_sym(df: pd.DataFrame) -> pd.Series:
     return pd.Series(res)
 
 
-def get_symmetry(df: pd.DataFrame, sym_type: str = "vertical") -> pd.Series:
+def get_symmetry(df: pd.DataFrame, sym_type: str = "both") -> pd.Series:
     if sym_type == "vertical":
         return get_vertical_sym(df)
     if sym_type == "horizontal":
         return get_horizontal_sym(df)
+    if sym_type == "both":
+        return get_vertical_sym(df) + get_horizontal_sym(df)
     
 
 def get_pixel_count(df: pd.DataFrame) -> pd.Series:
@@ -100,7 +102,7 @@ def get_pixel_count(df: pd.DataFrame) -> pd.Series:
     return aux.apply(lambda x: round(x/255, 2)) # Series does not have axis
      
 
-def pre_processing(df: pd.DataFrame, sym_type: str = "vertical") -> pd.DataFrame:
+def pre_processing(df: pd.DataFrame, sym_type: str = "both") -> pd.DataFrame:
     label = df["label"]
     df_drop = df.drop("label", axis=1, inplace=False)
     intensity = get_intensity(df_drop)
