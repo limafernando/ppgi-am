@@ -7,7 +7,8 @@ from metrics.metrics import compute_acc
 
 class BasePLA:
     def __init__(self) -> None:
-        self.w = [0, 0, 0]# w1, w2, theta
+        # w = [0, 0, 0]# w1, w2, theta
+        pass
 
     def constroiListaPCI(self, X, Y, w):
         """
@@ -28,7 +29,7 @@ class BasePLA:
         new_y = []
         for idx in range(len(X)):
             prediction = np.sign(
-                w[1]*X[idx][1] + w[2]*X[idx][2] + w[0] # x1-(m*x0)-b
+                w[0] + w[1]*X[idx][1] + w[2]*X[idx][2]
             )
             # prediction_logit = np.dot(np.asarray(w[0:2]), np.add(X[idx], w[2]))
             # prediction = np.sign(prediction_logit)
@@ -61,36 +62,39 @@ class PLA(BasePLA):
         """
         
         it = 0
-        W =[self.w.copy()]
+        w = [0, 0, 0]
+        W =[w.copy()]
         
-        listaPCI, new_y = self.constroiListaPCI(X, Y, self.w)
+        listaPCI, new_y = self.constroiListaPCI(X, Y, w)
         
         while (len(listaPCI) > 0) and it < epochs:
             idx = random.randint(0, len(listaPCI)-1)
 
-            self.w[0] = self.w[0] + new_y[idx]
-            self.w[1] = self.w[1] + new_y[idx]*listaPCI[idx][1] # intensidade
-            self.w[2] = self.w[2] + new_y[idx]*listaPCI[idx][2] # simetria
+            x, y = listaPCI[idx], new_y[idx]
+
+            w[0] = w[0] + y
+            w[1] = w[1] + y*x[1] # intensidade
+            w[2] = w[2] + y*x[2] # simetria
             
-            listaPCI, new_y = self.constroiListaPCI(X, Y, self.w)
+            listaPCI, new_y = self.constroiListaPCI(X, Y, w)
             
             it += 1
-            W.append(self.w.copy())       
+            W.append(w.copy())       
             
-        return it, self.w, W       
+        return it, w, W     
     
     def predict(self, X, w, single=False):
         
         if single:
             prediction = np.sign(
-                w[1]*X[1] + w[2]*X[2] + w[0] # x2-(m*x1)-b
+                w[0] + w[1]*X[1] + w[2]*X[2]
             )
             return prediction
         else:
             Y_pred = []
             for idx in range(len(X)):
                 prediction = np.sign(
-                    w[1]*X[idx][1] + w[2]*X[idx][2] + w[0] # x2-(m*x1)-b
+                    w[0] + w[1]*X[idx][1] + w[2]*X[idx][2]
                 )
                 Y_pred.append(prediction)
         
@@ -116,23 +120,25 @@ class PocketPLA(BasePLA):
         - it (int): Quantidade de iterações necessárias para corrigir todos os pontos classificados incorretamente.
         - w (list): Lista de três elementos correspondendo aos pesos do perceptron.
         """
-        
+        best_w = [0, 0, 0]
         it = 0
-        W =[self.w.copy()]
+        # W =[w.copy()]
         
-        listaPCI, new_y = self.constroiListaPCI(X, Y, self.w)
+        listaPCI, new_y = self.constroiListaPCI(X, Y, best_w)
 
-        current_pred = self.predict(X, self.w)
+        current_pred = self.predict(X, best_w)
         current_acc = compute_acc(Y, current_pred)
         
         while (len(listaPCI) > 0) and it < epochs:
+            new_w = [None, None, None]
+
             idx = random.randint(0, len(listaPCI)-1)
 
-            new_w = self.w.copy()
+            x, y = listaPCI[idx], new_y[idx]
 
-            new_w[0] = self.w[0] + new_y[idx]
-            new_w[1] = self.w[1] + new_y[idx]*listaPCI[idx][1] # intensidade
-            new_w[2] = self.w[2] + new_y[idx]*listaPCI[idx][2] # simetria
+            new_w[0] = best_w[0] + y
+            new_w[1] = best_w[1] + y*x[1] # intensidade
+            new_w[2] = best_w[2] + y*x[2] # simetria
 
             new_pred = self.predict(X, new_w)
             new_acc = compute_acc(Y, new_pred)
@@ -140,14 +146,14 @@ class PocketPLA(BasePLA):
             if new_acc > current_acc:
                 current_acc = new_acc
                 current_pred = new_pred
-                self.w = new_w.copy()
+                best_w = new_w.copy()
             
-            listaPCI, new_y = self.constroiListaPCI(X, Y, self.w)
+            listaPCI, new_y = self.constroiListaPCI(X, Y, best_w)
             
             it += 1
-            W.append(self.w.copy())       
+            # W.append(w.copy())       
             
-        return it, self.w, W       
+        return it, best_w#, W       
     
     def predict(self, X, w):
         Y_pred = []
