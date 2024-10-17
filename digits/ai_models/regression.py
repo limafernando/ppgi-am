@@ -117,3 +117,103 @@ class LogisticRegression:
 
     def getRegressionY(self, regressionX, shift=0):
         return (-self.w[0]+shift - self.w[1]*regressionX) / self.w[2]
+
+class LogisticRegressionWD:
+    def __init__(self, lr=0.01, n_iters=1000, bs=64):
+      self.lr = lr
+      self.n_iters = n_iters
+      self.batch_size = bs
+      self.w = None
+      self.cost = None
+
+    def sigmoid(self, z):
+        return 1 / (1 + np.exp(-z))
+    
+    def compute_cost(self, X, y):
+        epsilon = 1e-9
+        
+        y_pred = self.sigmoid(np.dot(X, self.w))
+
+        cost = (
+            y * np.log(y_pred + epsilon)
+            + 
+            (1 - y) * np.log(1 - y_pred + epsilon)
+        )
+        return -np.mean(cost)
+    
+    # Função para criar minibatches
+    def create_minibatches(self, X, y):
+        m = X.shape[0]
+        indices = np.random.permutation(m)
+        X_shuffled = X[indices]
+        y_shuffled = y[indices]
+        
+        for i in range(0, m, self.batch_size):
+            X_batch = X_shuffled[i:i+self.batch_size]
+            y_batch = y_shuffled[i:i+self.batch_size]
+            yield X_batch, y_batch
+
+    # Infere o vetor w da funçao hipotese
+    def fit(self, _X, _y, wd=1e-3):
+        
+        X = np.array(_X)
+        y = np.array(_y)
+
+        n_features = X.shape[1]
+
+        self.w = np.zeros(n_features)
+
+        for it in range(self.n_iters):
+            minibatches = self.create_minibatches(X, y)
+            
+            for X_batch, y_batch in minibatches:
+                n_samples = X_batch.shape[0]
+                
+                # Calcula a predição para o mini-lote
+                A = self.sigmoid(
+                    np.dot(X_batch, self.w)
+                )
+
+                dz = A - y_batch # y_pred - y_true
+
+                # Computa gradientes
+                dw = (1 / n_samples) * np.dot(X_batch.T, dz)
+                
+                # Atualiza os parâmetros usando o minibatch
+                self.w = self.w*(1-(2*self.lr*(wd/n_samples))) - self.lr * dw 
+            # for X_batch, y_batch in minibatches:
+            #     n_samples = X_batch.shape[0]
+            #     numerador_gt = np.dot(y_batch, X_batch)
+            #     y_pred = np.dot(X_batch, self.w)
+            #     denominador_gt = 1+np.exp(
+            #         np.dot(y_batch, y_pred)
+            #     )
+                
+            #     gt = (-1/n_samples) * (numerador_gt/denominador_gt)
+
+            #     self.w -= self.lr*gt
+            
+            # if it == 0 or (it+1) % 100 == 0:  # Print cost every 100 iterations
+            #     cost = self.compute_cost(X, y)
+                # print(f"Iteration {it+1}, Cost: {cost}")
+            self.cost = self.compute_cost(X, y)
+    
+        
+    #funcao hipotese inferida pela regressa logistica  
+    def predict_prob(self, X):
+        return self.sigmoid(
+            np.dot(
+                np.array(X),
+                self.w
+            )
+        )
+
+    #Predicao por classificação linear
+    def predict(self, X):
+        return (self.predict_prob(X) >= 0.5).astype(int)
+    
+    def getW(self):
+        return self.w
+
+    def getRegressionY(self, regressionX, shift=0):
+        return (-self.w[0]+shift - self.w[1]*regressionX) / self.w[2]
